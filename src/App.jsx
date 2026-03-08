@@ -1,10 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import Header from './components/Header'
+import Login from './components/Login'
 import ModuleCard from './components/ModuleCard'
 
 function App() {
+  const [user, setUser] = useState(null)
   const [selectedModule, setSelectedModule] = useState(null)
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('medops_user')
+    if (savedUser) {
+      setUser(savedUser)
+    }
+  }, [])
+
+  const handleLogin = (username) => {
+    setUser(username)
+    localStorage.setItem('medops_user', username)
+  }
+
+  const handleLogout = () => {
+    setUser(null)
+    localStorage.removeItem('medops_user')
+    setSelectedModule(null)
+  }
+
+  // Show login page if not authenticated
+  if (!user) {
+    return <Login onLogin={handleLogin} />
+  }
 
   const modules = [
     {
@@ -53,7 +79,7 @@ function App() {
 
   return (
     <div className="app">
-      <Header />
+      <Header user={user} onLogout={handleLogout} />
       <main className="main-content">
         <div className="content-header">
           <h1>MedOps Dashboard</h1>

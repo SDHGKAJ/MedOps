@@ -1,4 +1,4 @@
-export default function Header() {
+export default function Header({ user, onLogout }) {
   return (
     <header className="header">
       <div className="header-content">
@@ -12,7 +12,10 @@ export default function Header() {
           <a href="#settings" className="nav-link">Settings</a>
         </nav>
         <div className="header-user">
-          <span className="user-avatar">👤</span>
+          <span className="user-name">{user}</span>
+          <button className="logout-btn" onClick={onLogout} title="Logout">
+            ↪️
+          </button>
         </div>
       </div>
     </header>
