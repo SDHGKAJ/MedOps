@@ -2,92 +2,98 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import Header from './components/Header'
 import Login from './components/Login'
+import { authService } from './services/api'
 import ModuleCard from './components/ModuleCard'
+import Medicines from './components/Medicines'
+import Orders from './components/Orders'
+
 
 function App() {
   const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [selectedModule, setSelectedModule] = useState(null)
 
-  // Load user from localStorage on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('medops_user')
-    if (savedUser) {
-      setUser(savedUser)
-    }
+    checkAuth()
   }, [])
 
-  const handleLogin = (username) => {
-    setUser(username)
-    localStorage.setItem('medops_user', username)
+  const checkAuth = async () => {
+    const token = localStorage.getItem('medops_token')
+    if (token) {
+      try {
+        const res = await authService.getCurrentUser()
+        if (res.success) {
+          setUser(res.user)
+        }
+      } catch (err) {
+        console.error('Auth verification failed', err)
+        authService.logout()
+      }
+    }
+    setLoading(false)
+  }
+
+  const handleLogin = (userData) => {
+    setUser(userData)
   }
 
   const handleLogout = () => {
+    authService.logout()
     setUser(null)
-    localStorage.removeItem('medops_user')
     setSelectedModule(null)
   }
 
-  // Show login page if not authenticated
+  if (loading) {
+    return <div className="app flex-center">Loading...</div>
+  }
+
   if (!user) {
     return <Login onLogin={handleLogin} />
   }
 
-  const modules = [
-    {
-      id: 1,
-      title: 'User Authentication',
-      description: 'Login, roles, permissions, audit trail',
-      icon: '👤',
-      color: '#6366f1'
-    },
-    {
-      id: 2,
-      title: 'Inventory Management',
-      description: 'Stock in/out, adjustments, reorder levels',
-      icon: '📦',
-      color: '#ec4899'
-    },
-    {
-      id: 3,
-      title: 'Order Management',
-      description: 'Purchase orders, transfers, fulfillment',
-      icon: '📋',
-      color: '#f59e0b'
-    },
-    {
-      id: 4,
-      title: 'Batch & Expiry Tracking',
-      description: 'Batch capture, FEFO picking, expiry alerts',
-      icon: '⏰',
-      color: '#3b82f6'
-    },
-    {
-      id: 5,
-      title: 'Notifications',
-      description: 'Email/SMS/in-app alerts for reorder, expiry, order status',
-      icon: '🔔',
-      color: '#10b981'
-    },
-    {
-      id: 6,
-      title: 'Analytics Dashboard',
-      description: 'KPIs: stockouts, expiry, lead times, fill rate',
-      icon: '📊',
-      color: '#8b5cf6'
-    }
-  ]
+  const getModulesByRole = (role) => {
+    const allModules = [
+      {
+        id: 'medicines',
+        title: 'Medicines Inventory',
+        description: 'View catalog, check stock, and manage medicines',
+        icon: '💊',
+        color: '#ec4899',
+        roles: ['admin', 'customer']
+      },
+      {
+        id: 'orders',
+        title: 'Order Management',
+        description: 'View and manage purchase orders',
+        icon: '📋',
+        color: '#f59e0b',
+        roles: ['admin', 'customer']
+      },
+      {
+        id: 'users',
+        title: 'User Management',
+        description: 'Manage customers and admin users',
+        icon: '👤',
+        color: '#6366f1',
+        roles: ['admin'] // Admin only
+      }
+    ]
+    return allModules.filter(m => m.roles.includes(role))
+  }
+
+  const activeModules = getModulesByRole(user.role)
 
   return (
     <div className="app">
-      <Header user={user} onLogout={handleLogout} />
+      <Header user={user.username} onLogout={handleLogout} />
       <main className="main-content">
         <div className="content-header">
-          <h1>MedOps Dashboard</h1>
-          <p>Manage your medical operations efficiently</p>
+          <h1>Welcome, {user.username}</h1>
+          <p>Role: <span style={{textTransform:'capitalize', fontWeight:'bold', color: user.role === 'admin' ? '#ec4899' : '#3b82f6'}}>{user.role}</span> | Manage your medical operations efficiently</p>
         </div>
 
         <div className="modules-grid">
-          {modules.map(module => (
+          {activeModules.map(module => (
             <ModuleCard
               key={module.id}
               module={module}
@@ -98,19 +104,14 @@ function App() {
         </div>
 
         {selectedModule && (
-          <div className="module-detail">
+          <div className="module-detail" style={{ maxWidth: '1200px', width: '90%' }}>
             <button className="close-btn" onClick={() => setSelectedModule(null)}>
               ✕
             </button>
-            <div className="detail-content">
-              <div className="detail-icon" style={{ color: selectedModule.color }}>
-                {selectedModule.icon}
-              </div>
-              <h2>{selectedModule.title}</h2>
-              <p>{selectedModule.description}</p>
-              <button className="btn-primary" onClick={() => setSelectedModule(null)}>
-                Start
-              </button>
+            <div className="detail-content" style={{ textAlign: 'left' }}>
+              {selectedModule.id === 'medicines' && <Medicines user={user} />}
+              {selectedModule.id === 'orders' && <Orders user={user} />}
+              {selectedModule.id === 'users' && <div><h2>User Management Under Construction</h2><p>This module requires further API endpoints.</p></div>}
             </div>
           </div>
         )}

@@ -12,7 +12,7 @@ export default function Header({ user, onLogout }) {
           <a href="#settings" className="nav-link">Settings</a>
         </nav>
         <div className="header-user">
-          <span className="user-name">{user}</span>
+          <span className="user-name">Logout</span>
           <button className="logout-btn" onClick={onLogout} title="Logout">
             ↪️
           </button>
