@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medops-backend
+  labels:
+    app: medops-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medops-backend
+  template:
+    metadata:
+      labels:
+        app: medops-backend
+    spec:
+      containers:
+      - name: backend
+        image: medops-backend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        env:
+        - name: PORT
+          value: "5000"
+        # In a real environment, replace this with a Secret or ConfigMap reference
+        - name: MONGO_URI
+          value: "mongodb://mongo:27017/medops"
