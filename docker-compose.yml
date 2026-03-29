@@ -12,6 +12,6 @@ services:
     build:
       context: ./frontend
     ports:
-      - "8080:80" # Exposed on port 8080 to avoid conflicts
+      - "8081:80" # Exposed on port 8081 to avoid conflict with Jenkins
     depends_on:
       - backend
