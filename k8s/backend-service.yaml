@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: medops-backend-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: medops-backend
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
