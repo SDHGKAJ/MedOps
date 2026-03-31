@@ -52,8 +52,8 @@ pipeline {
                 echo '🚀 Deploying with Docker Compose...'
                 
                 // Copy the local .env files since they are gitignored
-                bat 'copy "C:\\Users\\Srinivasan\\OneDrive\\Desktop\\MedOps\\backend\\.env" backend\\.env'
-                bat 'copy "C:\\Users\\Srinivasan\\OneDrive\\Desktop\\MedOps\\frontend\\.env" frontend\\.env'
+                bat 'copy "C:\\Users\\arsha\\Desktop\\MedOps\\backend\\.env" backend\\.env'
+                bat 'copy "C:\\Users\\arsha\\Desktop\\MedOps\\frontend\\.env" frontend\\.env'
 
                 bat 'docker-compose down || true'
                 bat 'docker-compose up -d'

@@ -38,6 +38,7 @@ export const authService = {
     body: JSON.stringify(userData)
   }),
   getCurrentUser: () => fetchAPI('/auth/me'),
+  getAllUsers: () => fetchAPI('/auth/users/all'),
   logout: () => {
     localStorage.removeItem('medops_token');
     localStorage.removeItem('medops_user');
