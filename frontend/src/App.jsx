@@ -6,6 +6,7 @@ import { authService } from './services/api'
 import ModuleCard from './components/ModuleCard'
 import Medicines from './components/Medicines'
 import Orders from './components/Orders'
+import Users from './components/Users'
 
 
 function App() {
@@ -104,14 +105,14 @@ function App() {
         </div>
 
         {selectedModule && (
-          <div className="module-detail" style={{ maxWidth: '1200px', width: '90%' }}>
+          <div className="module-detail">
             <button className="close-btn" onClick={() => setSelectedModule(null)}>
               ✕
             </button>
-            <div className="detail-content" style={{ textAlign: 'left' }}>
+            <div className="detail-content" style={{ textAlign: 'left', maxWidth: '1200px', width: '90%', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
               {selectedModule.id === 'medicines' && <Medicines user={user} />}
               {selectedModule.id === 'orders' && <Orders user={user} />}
-              {selectedModule.id === 'users' && <div><h2>User Management Under Construction</h2><p>This module requires further API endpoints.</p></div>}
+              {selectedModule.id === 'users' && <Users user={user} />}
             </div>
           </div>
         )}

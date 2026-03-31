@@ -1,7 +1,7 @@
 export default function ModuleCard({ module, isSelected, onSelect }) {
   return (
     <div
-      className={`module-card ${isSelected ? 'selected' : ''}`}
+      className={`module-card ₹{isSelected ? 'selected' : ''}`}
       onClick={onSelect}
       role="button"
       tabIndex={0}
