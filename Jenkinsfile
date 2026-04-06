@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        WORKSPACE_DIR = "/home/kaushiik/.jenkins/workspace/MedOps"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -15,17 +19,13 @@ pipeline {
                 stage('Backend Dependencies') {
                     steps {
                         echo '📦 Installing backend dependencies...'
-                        dir('backend') {
-                            sh 'npm install'
-                        }
+                        sh 'cd backend && npm install'
                     }
                 }
                 stage('Frontend Dependencies') {
                     steps {
                         echo '📦 Installing frontend dependencies...'
-                        dir('frontend') {
-                            sh 'npm install'
-                        }
+                        sh 'cd frontend && npm install'
                     }
                 }
             }
@@ -34,9 +34,7 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 echo '🔨 Building React frontend...'
-                dir('frontend') {
-                    sh 'npm run build'
-                }
+                sh 'cd frontend && npm run build'
             }
         }
 
@@ -65,6 +63,8 @@ pipeline {
                     string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
                     sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
                         aws s3 sync ${STATIC_FILES_PATH} ${S3_BUCKET} \
                             --delete \
                             --exclude "*.py" \
