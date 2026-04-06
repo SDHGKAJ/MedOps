@@ -16,7 +16,7 @@ pipeline {
                     steps {
                         echo '📦 Installing backend dependencies...'
                         dir('backend') {
-                            bat 'npm install'
+                            sh 'npm install'
                         }
                     }
                 }
@@ -24,7 +24,7 @@ pipeline {
                     steps {
                         echo '📦 Installing frontend dependencies...'
                         dir('frontend') {
-                            bat 'npm install'
+                            sh 'npm install'
                         }
                     }
                 }
@@ -35,7 +35,7 @@ pipeline {
             steps {
                 echo '🔨 Building React frontend...'
                 dir('frontend') {
-                    bat 'npm run build'
+                    sh 'npm run build'
                 }
             }
         }
@@ -43,23 +43,21 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo '🐳 Building Docker images...'
-                bat 'docker-compose build'
+                sh 'docker-compose build'
             }
         }
 
         stage('Deploy') {
             steps {
                 echo '🚀 Deploying with Docker Compose...'
-                
-                // Copy the local .env files since they are gitignored
-                bat 'copy "C:\\Users\\arsha\\Desktop\\MedOps\\backend\\.env" backend\\.env'
-                bat 'copy "C:\\Users\\arsha\\Desktop\\MedOps\\frontend\\.env" frontend\\.env'
-
-                bat 'docker-compose down || true'
-                bat 'docker-compose up -d'
+                sh 'cp /mnt/c/Users/kaush/OneDrive/Documents/GitHub/MedOps/backend/.env backend/.env'
+                sh 'cp /mnt/c/Users/kaush/OneDrive/Documents/GitHub/MedOps/frontend/.env frontend/.env'
+                sh 'docker-compose down || true'
+                sh 'docker-compose up -d'
                 echo '✅ MedOps deployed successfully!'
             }
         }
+
         stage('Sync Static Files to S3') {
             steps {
                 withCredentials([
