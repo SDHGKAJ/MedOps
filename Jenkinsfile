@@ -60,6 +60,24 @@ pipeline {
                 echo '✅ MedOps deployed successfully!'
             }
         }
+        stage('Sync Static Files to S3') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    sh '''
+                        aws s3 sync ${STATIC_FILES_PATH} ${S3_BUCKET} \
+                            --delete \
+                            --exclude "*.py" \
+                            --exclude "*.pyc" \
+                            --include "*.html" \
+                            --include "*.css" \
+                            --include "*.js"
+                    '''
+                }
+            }
+        }
     }
 
     post {
