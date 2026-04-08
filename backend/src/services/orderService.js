@@ -20,6 +20,7 @@ class OrderService {
       }
 
       totalPrice += medicine.price * item.quantity;
+      item.price = medicine.price; // Add price to satisfy schema validation
     }
 
     const order = new Order({
