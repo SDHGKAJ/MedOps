@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         WORKSPACE_DIR = "/home/kaushiik/.jenkins/workspace/MedOps"
+        STATIC_FILES_PATH = "frontend/build"
+        S3_BUCKET = "s3://medops-frontend"
     }
 
     stages {
