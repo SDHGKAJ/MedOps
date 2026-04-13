@@ -43,15 +43,15 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo '🐳 Building Docker images...'
-                sh 'docker-compose build'
+                sh 'cp /mnt/c/Users/kaush/OneDrive/Documents/GitHub/MedOps/backend/.env backend/.env'
+                sh 'cp /mnt/c/Users/kaush/OneDrive/Documents/GitHub/MedOps/frontend/.env frontend/.env'
+                sh 'docker-compose build'   
             }
         }
 
         stage('Deploy') {
             steps {
                 echo '🚀 Deploying with Docker Compose...'
-                sh 'cp /mnt/c/Users/kaush/OneDrive/Documents/GitHub/MedOps/backend/.env backend/.env'
-                sh 'cp /mnt/c/Users/kaush/OneDrive/Documents/GitHub/MedOps/frontend/.env frontend/.env'
                 sh 'docker-compose down || true'
                 sh 'docker-compose up -d'
                 echo '✅ MedOps deployed successfully!'
