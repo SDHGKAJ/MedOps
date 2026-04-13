@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         WORKSPACE_DIR = "/home/kaushiik/.jenkins/workspace/MedOps"
-        STATIC_FILES_PATH = "frontend/build"
+        STATIC_FILES_PATH = "frontend/dist"
         S3_BUCKET = "s3://medops-frontend"
     }
 
