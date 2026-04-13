@@ -36,7 +36,7 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 echo '🔨 Building React frontend...'
-                sh 'cd frontend && npm run build'
+                sh 'cd frontend && chmod +x node_modules/.bin/vite && npm run build'
             }
         }
 
