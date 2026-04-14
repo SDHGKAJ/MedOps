@@ -26,6 +26,7 @@ class OrderService {
         price: medicine.price
       });
       totalPrice += medicine.price * item.quantity;
+      item.price = medicine.price; // Add price to satisfy schema validation
     }
 
     console.log("===> PROCESSED MEDICINES BEFORE SAVE:", JSON.stringify(processedMedicines, null, 2));
