@@ -1,15 +1,12 @@
 node_modules
-<<<<<<< HEAD
 .git
 .vscode
 .idea
 *.log
 *.md
 .DS_Store
-=======
 npm-debug.log
 .env
 .git
 .gitignore
 README.md
->>>>>>> 2aab65587a326ff5a5d3e36e2f4115903aecf7a9
