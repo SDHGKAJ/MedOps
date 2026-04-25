@@ -20,13 +20,13 @@ pipeline {
                 stage('Backend Dependencies') {
                     steps {
                         echo '📦 Installing backend dependencies...'
-                        bat 'cd backend && npm install'
+                        sh 'cd backend && npm install'
                     }
                 }
                 stage('Frontend Dependencies') {
                     steps {
                         echo '📦 Installing frontend dependencies...'
-                        bat 'cd frontend && npm install'
+                        sh 'cd frontend && npm install'
                     }
                 }
             }
@@ -35,24 +35,24 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 echo '🔨 Building React frontend...'
-                bat 'cd frontend && npm run build'
+                sh 'cd frontend && npm run build'
             }
         }
 
         stage('Docker Build') {
             steps {
                 echo '🐳 Building Docker images...'
-                bat 'copy /Y "C:\\Users\\kaush\\OneDrive\\Documents\\GitHub\\MedOps\\backend\\.env" "backend\\.env"'
-                bat 'copy /Y "C:\\Users\\kaush\\OneDrive\\Documents\\GitHub\\MedOps\\frontend\\.env" "frontend\\.env"'
-                bat 'docker-compose build'
+                sh 'copy /Y "C:\\Users\\kaush\\OneDrive\\Documents\\GitHub\\MedOps\\backend\\.env" "backend\\.env"'
+                sh 'copy /Y "C:\\Users\\kaush\\OneDrive\\Documents\\GitHub\\MedOps\\frontend\\.env" "frontend\\.env"'
+                sh 'docker-compose build'
             }
         }
 
         stage('Deploy') {
             steps {
                 echo '🚀 Deploying with Docker Compose...'
-                bat 'docker-compose down || exit 0'
-                bat 'docker-compose up -d'
+                sh 'docker-compose down || exit 0'
+                sh 'docker-compose up -d'
                 echo '✅ MedOps deployed successfully!'
             }
         }
