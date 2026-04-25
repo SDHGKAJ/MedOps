@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        WORKSPACE_DIR = "/home/kaushiik/.jenkins/workspace/MedOps"
+        STATIC_FILES_PATH = "frontend/dist"
+        S3_BUCKET = "s3://medops-frontend"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -15,17 +21,13 @@ pipeline {
                 stage('Backend Dependencies') {
                     steps {
                         echo '📦 Installing backend dependencies...'
-                        dir('backend') {
-                            bat 'npm install'
-                        }
+                        sh 'cd backend && npm install'
                     }
                 }
                 stage('Frontend Dependencies') {
                     steps {
                         echo '📦 Installing frontend dependencies...'
-                        dir('frontend') {
-                            bat 'npm install'
-                        }
+                        sh 'cd frontend && npm install'
                     }
                 }
             }
@@ -34,30 +36,46 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 echo '🔨 Building React frontend...'
-                dir('frontend') {
-                    bat 'npm run build'
-                }
+                sh 'cd frontend && chmod +x node_modules/.bin/vite && npm run build'
             }
         }
 
         stage('Docker Build') {
             steps {
                 echo '🐳 Building Docker images...'
-                bat 'docker-compose build'
+                sh 'cp /mnt/c/Users/kaush/OneDrive/Documents/GitHub/MedOps/backend/.env backend/.env'
+                sh 'cp /mnt/c/Users/kaush/OneDrive/Documents/GitHub/MedOps/frontend/.env frontend/.env'
+                sh 'docker-compose build'   
             }
         }
 
         stage('Deploy') {
             steps {
                 echo '🚀 Deploying with Docker Compose...'
-                
-                // Copy the local .env files since they are gitignored
-                bat 'copy "C:\\Users\\Srinivasan\\OneDrive\\Desktop\\MedOps\\backend\\.env" backend\\.env'
-                bat 'copy "C:\\Users\\Srinivasan\\OneDrive\\Desktop\\MedOps\\frontend\\.env" frontend\\.env'
-
-                bat 'docker-compose down || true'
-                bat 'docker-compose up -d'
+                sh 'docker-compose down || true'
+                sh 'docker-compose up -d'
                 echo '✅ MedOps deployed successfully!'
+            }
+        }
+
+        stage('Sync Static Files to S3') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        aws s3 sync ${STATIC_FILES_PATH} ${S3_BUCKET} \
+                            --delete \
+                            --exclude "*.py" \
+                            --exclude "*.pyc" \
+                            --include "*.html" \
+                            --include "*.css" \
+                            --include "*.js"
+                    '''
+                }
             }
         }
     }

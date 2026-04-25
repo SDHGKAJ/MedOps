@@ -25,4 +25,7 @@ spec:
           value: "5000"
         # In a real environment, replace this with a Secret or ConfigMap reference
         - name: MONGO_URI
-          value: "mongodb://mongo:27017/medops"
+          valueFrom:
+            secretKeyRef:
+              name: medops-secrets
+              key: MONGO_URI

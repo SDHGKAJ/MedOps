@@ -5,6 +5,7 @@ class OrderService {
   async createOrder(customerId, medicines) {
     // Calculate total price and verify availability
     let totalPrice = 0;
+    const processedMedicines = [];
 
     for (const item of medicines) {
       const medicine = await Medicine.findById(item.medicineId);
@@ -19,13 +20,20 @@ class OrderService {
         );
       }
 
+      processedMedicines.push({
+        medicineId: item.medicineId,
+        quantity: item.quantity,
+        price: medicine.price
+      });
       totalPrice += medicine.price * item.quantity;
       item.price = medicine.price; // Add price to satisfy schema validation
     }
 
+    console.log("===> PROCESSED MEDICINES BEFORE SAVE:", JSON.stringify(processedMedicines, null, 2));
+
     const order = new Order({
       customerId,
-      medicines,
+      medicines: processedMedicines,
       totalPrice,
     });
 

@@ -6,7 +6,7 @@ export default function Orders({ user }) {
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // New Order State
   const [showNewOrder, setShowNewOrder] = useState(false);
   const [cart, setCart] = useState([]); // { medicineId, quantity, details }
@@ -21,8 +21,8 @@ export default function Orders({ user }) {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = user.role === 'admin' 
-        ? await orderService.getAll() 
+      const res = user.role === 'admin'
+        ? await orderService.getAll()
         : await orderService.getMyOrders();
       setOrders(res.orders || []);
     } catch (err) {
@@ -69,9 +69,9 @@ export default function Orders({ user }) {
         alert('Stock limit reached');
         return;
       }
-      setCart(cart.map(item => 
-        item.medicineId === medicine._id 
-          ? { ...item, quantity: item.quantity + 1 } 
+      setCart(cart.map(item =>
+        item.medicineId === medicine._id
+          ? { ...item, quantity: item.quantity + 1 }
           : item
       ));
     } else {
@@ -130,7 +130,7 @@ export default function Orders({ user }) {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
           <div>
             <h3>Available Medicines</h3>
-            <div style={{ display: 'grid', gap: '1rem' }}>
+            <div style={{ display: 'grid', gap: '1rem', maxHeight: 'calc(100vh - 300px)', overflowY: 'auto', paddingRight: '0.5rem' }}>
               {medicines.map(med => (
                 <div key={med._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '4px' }}>
                   <div>
@@ -144,11 +144,11 @@ export default function Orders({ user }) {
               ))}
             </div>
           </div>
-          
+
           <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', alignSelf: 'start' }}>
             <h3>Your Cart</h3>
             {cart.length === 0 ? (
-              <p>Cart is empty</p>
+              <p>No items added</p>
             ) : (
               <div>
                 {cart.map(item => (
@@ -178,23 +178,29 @@ export default function Orders({ user }) {
           ) : orders.length === 0 ? (
             <p>No orders found.</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: 'calc(100vh - 300px)', overflowY: 'auto', paddingRight: '0.5rem' }}>
               {orders.map(order => (
                 <div key={order._id} style={{ border: '1px solid #e2e8f0', padding: '1.5rem', borderRadius: '8px', background: 'white' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '1rem', marginBottom: '1rem' }}>
                     <div>
                       <h3 style={{ margin: '0 0 0.25rem 0' }}>Order #{order._id.substring(order._id.length - 8)}</h3>
-                      {user.role === 'admin' && <p style={{ margin: 0, fontSize: '0.875rem', color: '#64748b' }}>Customer: {order.customerId?.username || order.customerId}</p>}
+                      {user.role === 'admin' && (
+                        <div style={{ margin: '0.5rem 0', padding: '0.5rem', background: '#f8fafc', borderRadius: '4px', border: '1px dashed #cbd5e1' }}>
+                          <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 'bold', color: '#334155' }}>Customer Info:</p>
+                          <p style={{ margin: 0, fontSize: '0.875rem', color: '#64748b' }}>Username: {order.customerId?.username || order.customerId}</p>
+                          {order.customerId?.email && <p style={{ margin: 0, fontSize: '0.875rem', color: '#64748b' }}>Email: {order.customerId.email}</p>}
+                        </div>
+                      )}
                       <p style={{ margin: 0, fontSize: '0.875rem', color: '#94a3b8' }}>
                         {new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString()}
                       </p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <span style={{ 
+                      <span style={{
                         display: 'inline-block',
-                        padding: '0.25rem 0.75rem', 
-                        borderRadius: '9999px', 
-                        fontSize: '0.875rem', 
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '9999px',
+                        fontSize: '0.875rem',
                         fontWeight: 'bold',
                         color: 'white',
                         background: getStatusColor(order.status),
@@ -206,7 +212,7 @@ export default function Orders({ user }) {
                       <h3 style={{ margin: 0 }}>Total: ${order.totalPrice}</h3>
                     </div>
                   </div>
-                  
+
                   <div>
                     <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>Items:</h4>
                     <ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.875rem' }}>
@@ -225,10 +231,17 @@ export default function Orders({ user }) {
                   {user.role === 'admin' && (
                     <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                       <label style={{ fontSize: '0.875rem', fontWeight: 'bold' }}>Update Status:</label>
-                      <select 
-                        value={order.status} 
+                      <select
+                        value={order.status}
                         onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
-                        style={{ padding: '0.25rem 0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                        disabled={order.status === 'cancelled'}
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '4px',
+                          border: '1px solid #cbd5e1',
+                          opacity: order.status === 'cancelled' ? 0.5 : 1,
+                          cursor: order.status === 'cancelled' ? 'not-allowed' : 'pointer'
+                        }}
                       >
                         <option value="placed">Placed</option>
                         <option value="confirmed">Confirmed</option>
@@ -236,14 +249,17 @@ export default function Orders({ user }) {
                         <option value="delivered">Delivered</option>
                         <option value="cancelled">Cancelled</option>
                       </select>
+                      {order.status === 'cancelled' && (
+                        <span style={{ fontSize: '0.8rem', color: '#ef4444', fontStyle: 'italic' }}>Order cancelled — cannot update</span>
+                      )}
                     </div>
                   )}
 
                   {user.role === 'customer' && order.status === 'placed' && (
                     <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
-                       <button onClick={() => handleCancelOrder(order._id)} style={{ padding: '0.5rem 1rem', background: 'transparent', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                          Cancel Order
-                       </button>
+                      <button onClick={() => handleCancelOrder(order._id)} style={{ padding: '0.5rem 1rem', background: 'transparent', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                        Cancel Order
+                      </button>
                     </div>
                   )}
                 </div>
