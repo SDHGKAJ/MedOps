@@ -42,9 +42,14 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo '🐳 Building Docker images...'
-                sh 'copy /Y "C:\\Users\\kaush\\OneDrive\\Documents\\GitHub\\MedOps\\backend\\.env" "backend\\.env"'
-                sh 'copy /Y "C:\\Users\\kaush\\OneDrive\\Documents\\GitHub\\MedOps\\frontend\\.env" "frontend\\.env"'
-                sh 'docker-compose build'
+                withCredentials([
+                    file(credentialsId: 'backend-env', variable: 'BACKEND_ENV'),
+                    file(credentialsId: 'frontend-env', variable: 'FRONTEND_ENV')
+                ]) {
+                    sh 'cp $BACKEND_ENV backend/.env'
+                    sh 'cp $FRONTEND_ENV frontend/.env'
+                    sh 'docker-compose build'
+                }
             }
         }
 
